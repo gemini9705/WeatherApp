@@ -13,7 +13,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:contentDescription="@string/weather_icon_desc"
-        android:src="@android:drawable/ic_menu_cloud"/>
+        android:src="@drawable/ic_cloud"/>
 
     <!-- Weather details (Date and Temperature) -->
     <LinearLayout

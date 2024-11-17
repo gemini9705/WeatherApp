@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WeatherApp</string>
+    <string name="weather_icon_desc">Weather icon</string>
 </resources>

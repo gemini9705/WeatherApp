@@ -13,7 +13,7 @@
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:contentDescription="@string/weather_icon_desc"
-        android:src="@drawable/ic_cloud"/>
+        android:layout_marginEnd="8dp" />
 
     <!-- Weather details (Date and Temperature) -->
     <LinearLayout
@@ -42,12 +42,4 @@
             android:textSize="14sp"
             android:textColor="@color/black" />
     </LinearLayout>
-
-    <!-- Cloud Coverage (optional visual representation like a color or icon) -->
-    <View
-        android:id="@+id/cloudCoverageIndicator"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:background="@color/white"
-        android:layout_gravity="center" />
 </LinearLayout>

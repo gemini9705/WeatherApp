@@ -37,7 +37,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val weatherService = retrofit.create(WeatherService::class.java)
 
     fun fetchWeather(lat: Float, lon: Float) {
-        println("WeatherViewModel: Fetching weather for Latitude=$lat, Longitude=$lon")
         val internetAvailable = isInternetAvailable(context)
         _isConnected.postValue(internetAvailable)
 
@@ -45,24 +44,29 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val response = weatherService.getWeatherForecast(lat, lon).execute()
-                    println("API Request Sent")
                     if (response.isSuccessful && response.body() != null) {
                         val body = response.body()
-                        println("API Response: $body")
-                        if (body != null && body.daily.time != null && body.daily.temperature_2m_max != null) {
-                            val weatherList = body.daily.time.mapIndexed { index, date ->
+                        if (body != null && body.hourly.time != null && body.hourly.temperature_2m != null) {
+                            val weatherList = body.hourly.time.mapIndexed { index, timestamp ->
+                                val cloudCover = body.hourly.cloud_cover?.getOrNull(index) ?: 0.0
+                                val precipitation = body.hourly.precipitation?.getOrNull(index) ?: 0.0
+
+                                val condition = when {
+                                    precipitation > 0 -> "Rain" // Rain if precipitation > 0
+                                    cloudCover < 30 -> "Sunny" // Low cloud cover
+                                    cloudCover in 30.0..70.0 -> "Partly Cloudy" // Moderate cloud cover
+                                    cloudCover > 70 -> "Cloudy" // High cloud cover
+                                    else -> "Unknown"
+                                }
+
                                 WeatherData(
-                                    date = date,
-                                    temperature = body.daily.temperature_2m_max.getOrNull(index) ?: 0.0,
-                                    cloudCoverage = "Unknown" // Placeholder
+                                    date = timestamp, // Use hourly timestamp
+                                    temperature = body.hourly.temperature_2m[index],
+                                    cloudCoverage = condition
                                 )
                             }
                             _weatherData.postValue(weatherList)
                             cacheWeatherData(weatherList)
-                            println("Weather data updated: $weatherList")
-                        } else {
-                            println("Invalid API Response: Missing fields")
-                            _weatherData.postValue(emptyList())
                         }
                     } else {
                         println("API Error: ${response.errorBody()?.string()}")
@@ -74,23 +78,10 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                 }
             }
         } else {
-            val cachedData = getCachedWeatherData()
-            if (cachedData != null) {
-                println("Using cached data: $cachedData")
-                _weatherData.postValue(cachedData)
-            } else {
-                println("No internet and no cached data found.")
-                _weatherData.postValue(emptyList()) // Provide an empty list as a fallback
-            }
-
+            val cachedData = getCachedWeatherData() ?: emptyList()
+            _weatherData.postValue(cachedData)
         }
     }
-
-
-
-
-
-
 
     private fun cacheWeatherData(weatherData: List<WeatherData>) {
         val json = Gson().toJson(weatherData)

@@ -1,11 +1,12 @@
 package com.example.weatherapp.model
 
-data class WeatherApiResponse(
-    val daily: DailyWeather
+data class HourlyWeatherApiResponse(
+    val hourly: HourlyWeather
 )
 
-data class DailyWeather(
-    val time: List<String>,
-    val temperature_2m_max: List<Double>,
-    val cloudcover: List<Double>
+data class HourlyWeather(
+    val time: List<String>, // List of timestamps
+    val temperature_2m: List<Double>, // List of hourly temperatures
+    val cloud_cover: List<Double>, // List of hourly cloud cover percentages
+    val precipitation: List<Double>? // List of hourly precipitation (optional)
 )

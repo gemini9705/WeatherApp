@@ -24,7 +24,7 @@ fun WeatherItem(weather: WeatherData) {
                     "Cloudy" -> R.drawable.ic_cloudy
                     "Partly Cloudy" -> R.drawable.ic_partlycloudy
                     "Sunny" -> R.drawable.ic_sunny
-                    "Rainy" -> R.drawable.ic_rain
+                    "Rain" -> R.drawable.ic_rain
                     else -> R.drawable.ic_default
                 }
             ),

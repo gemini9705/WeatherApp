@@ -1,6 +1,6 @@
 package com.example.weatherapp.network
 
-import com.example.weatherapp.model.WeatherApiResponse
+import com.example.weatherapp.model.HourlyWeatherApiResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -10,7 +10,7 @@ interface WeatherService {
     fun getWeatherForecast(
         @Query("latitude") lat: Float,
         @Query("longitude") lon: Float,
-        @Query("daily") daily: String = "temperature_2m_max", // Ensure this matches API docs
+        @Query("hourly") hourly: String = "temperature_2m,cloud_cover,precipitation",
         @Query("timezone") timezone: String = "auto"
-    ): Call<WeatherApiResponse>
+    ): Call<HourlyWeatherApiResponse>
 }

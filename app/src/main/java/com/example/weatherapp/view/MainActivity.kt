@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.model.WeatherData
@@ -28,17 +27,30 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WeatherAppTheme {
+                // Observe weather data from ViewModel
                 val weatherList by weatherViewModel.weatherData.observeAsState(emptyList())
 
+                // Scaffold with updated layout
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        // Input fields for Latitude and Longitude
-                        WeatherInput { latitude, longitude ->
-                            weatherViewModel.fetchWeather(latitude, longitude)
-                        }
+                        // Input fields for latitude and longitude
+                        WeatherInput(
+                            onFetchWeather = { latitude, longitude ->
+                                weatherViewModel.fetchWeather(latitude, longitude)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .weight(1f) // Fix height for input section
+                        )
 
-                        // Weather list
-                        WeatherList(weatherData = weatherList)
+                        // Display weather list
+                        WeatherList(
+                            weatherData = weatherList,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(3f) // Allocate remaining space to the list
+                        )
                     }
                 }
             }

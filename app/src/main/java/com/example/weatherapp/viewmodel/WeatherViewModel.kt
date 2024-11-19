@@ -37,6 +37,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val weatherService = retrofit.create(WeatherService::class.java)
 
     fun fetchWeather(lat: Float, lon: Float) {
+        println("WeatherViewModel: Fetching weather for Latitude=$lat, Longitude=$lon")
         val internetAvailable = isInternetAvailable(context)
         _isConnected.postValue(internetAvailable)
 
@@ -44,29 +45,50 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val response = weatherService.getWeatherForecast(lat, lon).execute()
-                    if (response.isSuccessful) {
+                    println("API Request Sent")
+                    if (response.isSuccessful && response.body() != null) {
                         val body = response.body()
-                        body?.let {
-                            val weatherList = it.daily.time.mapIndexed { index, date ->
+                        println("API Response: $body")
+                        if (body != null && body.daily.time != null && body.daily.temperature_2m_max != null) {
+                            val weatherList = body.daily.time.mapIndexed { index, date ->
                                 WeatherData(
                                     date = date,
-                                    temperature = it.daily.temperature_2m_max[index],
-                                    cloudCoverage = "Partly Cloudy" // Example placeholder
+                                    temperature = body.daily.temperature_2m_max.getOrNull(index) ?: 0.0,
+                                    cloudCoverage = "Unknown" // Placeholder
                                 )
                             }
                             _weatherData.postValue(weatherList)
                             cacheWeatherData(weatherList)
+                            println("Weather data updated: $weatherList")
+                        } else {
+                            println("Invalid API Response: Missing fields")
+                            _weatherData.postValue(emptyList())
                         }
+                    } else {
+                        println("API Error: ${response.errorBody()?.string()}")
+                        _weatherData.postValue(emptyList())
                     }
                 } catch (e: Exception) {
-                    // Handle exception
+                    println("Error fetching weather: ${e.message}")
+                    _weatherData.postValue(emptyList())
                 }
             }
         } else {
-            val cachedData = getCachedWeatherData() ?: emptyList()
-            _weatherData.postValue(cachedData) // Always non-null
+            val cachedData = getCachedWeatherData()
+            if (cachedData != null) {
+                println("Using cached data: $cachedData")
+                _weatherData.postValue(cachedData)
+            } else {
+                println("No internet and no cached data found.")
+                _weatherData.postValue(emptyList()) // Provide an empty list as a fallback
+            }
+
         }
     }
+
+
+
+
 
 
 

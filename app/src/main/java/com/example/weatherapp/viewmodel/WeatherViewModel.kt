@@ -69,6 +69,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     }
 
 
+
     private fun cacheWeatherData(weatherData: List<WeatherData>) {
         val json = Gson().toJson(weatherData)
         sharedPreferences.edit().putString("cached_weather_data", json).apply()

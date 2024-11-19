@@ -45,6 +45,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                 try {
                     val response = weatherService.getWeatherForecast(lat, lon).execute()
                     if (response.isSuccessful && response.body() != null) {
+                        println("API Response: ${response.body()?.hourly}")
                         val body = response.body()
                         if (body != null && body.hourly.time != null && body.hourly.temperature_2m != null) {
                             val weatherList = body.hourly.time.mapIndexed { index, timestamp ->

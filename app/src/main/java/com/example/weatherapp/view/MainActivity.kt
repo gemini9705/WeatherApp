@@ -27,12 +27,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WeatherAppTheme {
-                // Observe weather data from ViewModel
                 val weatherList by weatherViewModel.weatherData.observeAsState(emptyList())
+                val isConnected by weatherViewModel.isConnected.observeAsState(true)
 
                 // Scaffold with updated layout
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
+                        // Display offline message if not connected
+                        if (!isConnected) {
+                            Text(
+                                text = "No internet connection. Showing cached data.",
+                                color = androidx.compose.ui.graphics.Color.Red,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                            )
+                        }
+
                         // Input fields for latitude and longitude
                         WeatherInput(
                             onFetchWeather = { latitude, longitude ->
@@ -41,14 +52,15 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(8.dp)
-                                .weight(1f) // Fix height for input section
+                                .weight(1f)
                         )
 
+                        // Weather list
                         WeatherList(
                             weatherData = weatherList,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .weight(3f) // Allocate remaining space to the list
+                                .weight(3f)
                         )
                     }
                 }
@@ -56,3 +68,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+

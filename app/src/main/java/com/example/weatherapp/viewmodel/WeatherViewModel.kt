@@ -53,7 +53,6 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                 val precipitation = body.hourly.precipitation?.getOrNull(index) ?: 0.0
                                 val snowfall = body.hourly.snowfall?.getOrNull(index) ?: 0.0
 
-
                                 val condition = when {
                                     snowfall > 0 -> "Snow" // Snow if snowfall > 0
                                     precipitation > 0 -> "Rain" // Rain if precipitation > 0

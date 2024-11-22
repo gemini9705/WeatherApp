@@ -1,7 +1,6 @@
 package com.example.weatherapp.view
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,7 +12,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
-import com.example.weatherapp.model.WeatherData
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.viewmodel.WeatherViewModel
 import androidx.compose.material3.TopAppBar

@@ -10,21 +10,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 //(59.3293f, 18.0686f) // Example: Stockholm
 
 @Composable
 fun WeatherInput(
     onFetchWeather: (Float, Float) -> Unit,
-    modifier: Modifier = Modifier // Add the modifier parameter with a default value
+    modifier: Modifier = Modifier
 ) {
     var latitude by remember { mutableStateOf("") }
     var longitude by remember { mutableStateOf("") }
     val context = LocalContext.current
 
     Box(
-        modifier = modifier // Use the passed modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {

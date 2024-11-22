@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.WeatherData
 import com.example.weatherapp.network.WeatherService
@@ -63,7 +62,7 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                 }
 
                                 WeatherData(
-                                    date = timestamp, // Use hourly timestamp
+                                    date = timestamp, // hourly timestamp
                                     temperature = body.hourly.temperature_2m[index],
                                     cloudCoverage = condition
                                 )

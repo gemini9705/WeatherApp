@@ -16,12 +16,14 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.model.WeatherData
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.viewmodel.WeatherViewModel
+import androidx.compose.material3.TopAppBar
 
 class MainActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels {
         ViewModelProvider.AndroidViewModelFactory(application)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -30,10 +32,17 @@ class MainActivity : ComponentActivity() {
                 val weatherList by weatherViewModel.weatherData.observeAsState(emptyList())
                 val isConnected by weatherViewModel.isConnected.observeAsState(true)
 
-                // Scaffold with updated layout
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        TopAppBar(
+                            title = {
+                                Text(text = "Weather Forecast")
+                            }
+                        )
+                    }
+                ) { innerPadding ->
                     Column(modifier = Modifier.padding(innerPadding)) {
-                        // Display offline message if not connected
                         if (!isConnected) {
                             Text(
                                 text = "No internet connection. Showing cached data.",
@@ -44,7 +53,6 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        // Input fields for latitude and longitude
                         WeatherInput(
                             onFetchWeather = { latitude, longitude ->
                                 weatherViewModel.fetchWeather(latitude, longitude)
@@ -55,7 +63,6 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f)
                         )
 
-                        // Weather list
                         WeatherList(
                             weatherData = weatherList,
                             modifier = Modifier
@@ -68,4 +75,5 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 

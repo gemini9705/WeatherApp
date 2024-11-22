@@ -44,7 +44,6 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f) // Fix height for input section
                         )
 
-                        // Display weather list
                         WeatherList(
                             weatherData = weatherList,
                             modifier = Modifier

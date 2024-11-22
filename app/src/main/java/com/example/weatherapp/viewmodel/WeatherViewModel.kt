@@ -51,8 +51,11 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                             val weatherList = body.hourly.time.mapIndexed { index, timestamp ->
                                 val cloudCover = body.hourly.cloud_cover?.getOrNull(index) ?: 0.0
                                 val precipitation = body.hourly.precipitation?.getOrNull(index) ?: 0.0
+                                val snowfall = body.hourly.snowfall?.getOrNull(index) ?: 0.0
+
 
                                 val condition = when {
+                                    snowfall > 0 -> "Snow" // Snow if snowfall > 0
                                     precipitation > 0 -> "Rain" // Rain if precipitation > 0
                                     cloudCover < 30 -> "Sunny" // Low cloud cover
                                     cloudCover in 30.0..70.0 -> "Partly Cloudy" // Moderate cloud cover

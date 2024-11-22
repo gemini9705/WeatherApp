@@ -10,7 +10,7 @@ interface WeatherService {
     fun getWeatherForecast(
         @Query("latitude") lat: Float,
         @Query("longitude") lon: Float,
-        @Query("hourly") hourly: String = "temperature_2m,cloud_cover,precipitation",
+        @Query("hourly") hourly: String = "temperature_2m,cloud_cover,precipitation,snowfall",
         @Query("timezone") timezone: String = "auto"
     ): Call<HourlyWeatherApiResponse>
 }

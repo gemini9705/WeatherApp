@@ -10,12 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.weatherapp.viewmodel.WeatherViewModel
 
 //(59.3293f, 18.0686f) // Example: Stockholm
 
 @Composable
 fun WeatherInput(
     onFetchWeather: (Float, Float) -> Unit,
+    weatherViewModel: WeatherViewModel,
     modifier: Modifier = Modifier
 ) {
     var latitude by remember { mutableStateOf("") }
@@ -54,25 +56,45 @@ fun WeatherInput(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            Button(
-                onClick = {
-                    val lat = latitude.toFloatOrNull()
-                    val lon = longitude.toFloatOrNull()
-                    if (lat != null && lon != null) {
-                        onFetchWeather(lat, lon)
-                    } else {
-                        Toast.makeText(
-                            context,
-                            "Please enter valid numbers for latitude and longitude.",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
+            // Buttons in a single row
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("FETCH")
+                Button(
+                    onClick = {
+                        val lat = latitude.toFloatOrNull()
+                        val lon = longitude.toFloatOrNull()
+                        if (lat != null && lon != null) {
+                            onFetchWeather(lat, lon)
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Please enter valid numbers for latitude and longitude.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("FETCH")
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Button(
+                    onClick = {
+                        val location = "$latitude, $longitude"
+                        weatherViewModel.addFavorite(location)
+                        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Add to Favorites")
+                }
             }
         }
     }
 }
+
 

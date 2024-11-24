@@ -25,6 +25,9 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val _weatherData = MutableLiveData<List<WeatherData>>(emptyList())
     val weatherData: LiveData<List<WeatherData>> get() = _weatherData
 
+    private val _favorites = MutableLiveData<List<String>>(emptyList())
+    val favorites: LiveData<List<String>> get() = _favorites
+
     private val _isConnected = MutableLiveData<Boolean>()
     val isConnected: LiveData<Boolean> get() = _isConnected
 
@@ -122,6 +125,31 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun addFavorite(location: String) {
+        val updatedFavorites = (_favorites.value ?: emptyList()) + location
+        _favorites.postValue(updatedFavorites)
+        saveFavorites(updatedFavorites)
+    }
+
+    fun removeFavorite(location: String) {
+        val updatedFavorites = (_favorites.value ?: emptyList()).filter { it != location }
+        _favorites.postValue(updatedFavorites)
+        saveFavorites(updatedFavorites)
+    }
+
+    private fun saveFavorites(favorites: List<String>) {
+        val json = Gson().toJson(favorites)
+        sharedPreferences.edit().putString("favorites", json).apply()
+    }
+
+    private fun loadFavorites() {
+        val json = sharedPreferences.getString("favorites", null)
+        if (json != null) {
+            val type = object : TypeToken<List<String>>() {}.type
+            val favorites = Gson().fromJson<List<String>>(json, type)
+            _favorites.postValue(favorites)
+        }
+    }
 
     // Cache weather data
     private fun cacheWeatherData(weatherData: List<WeatherData>) {

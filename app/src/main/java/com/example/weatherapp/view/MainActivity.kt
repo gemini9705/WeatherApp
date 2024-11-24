@@ -59,9 +59,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .padding(innerPadding)
                             .fillMaxSize()
-                            .padding(8.dp), // Add padding to prevent collisions
-                        verticalArrangement = Arrangement.SpaceBetween // Space elements evenly
                     ) {
+                        // Display connection status message
                         if (!isConnected) {
                             Text(
                                 text = "No internet connection. Showing cached data.",
@@ -69,7 +68,7 @@ class MainActivity : ComponentActivity() {
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(bottom = 8.dp) // Add spacing below the text
+                                    .padding(8.dp)
                             )
                         }
 
@@ -80,7 +79,8 @@ class MainActivity : ComponentActivity() {
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 8.dp) // Add spacing below input
+                                .padding(8.dp)
+                                .weight(1f)
                         )
 
                         // Weather list display
@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                             weatherData = weatherList,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .weight(1f) // Use weight for proper distribution
+                                .weight(3f)
                         )
                     }
                 }

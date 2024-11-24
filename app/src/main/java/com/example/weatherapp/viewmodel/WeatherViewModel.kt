@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.weatherapp.model.WeatherData
+import com.example.weatherapp.network.GeocodingService
 import com.example.weatherapp.network.WeatherService
 import com.example.weatherapp.utils.isInternetAvailable
 import com.google.gson.Gson
@@ -17,29 +18,43 @@ import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class WeatherViewModel(application: Application) : AndroidViewModel(application)  {
+class WeatherViewModel(application: Application) : AndroidViewModel(application) {
     private val context = application.applicationContext
+
+    // LiveData for weather data and connection status
     private val _weatherData = MutableLiveData<List<WeatherData>>(emptyList())
     val weatherData: LiveData<List<WeatherData>> get() = _weatherData
 
     private val _isConnected = MutableLiveData<Boolean>()
     val isConnected: LiveData<Boolean> get() = _isConnected
 
+    private val _locationName = MutableLiveData<String>()
+    val locationName: LiveData<String> get() = _locationName
+
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
 
+    // Retrofit setup
     private val retrofit = Retrofit.Builder()
         .baseUrl("https://api.open-meteo.com/v1/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     private val weatherService = retrofit.create(WeatherService::class.java)
+    private val geocodingRetrofit = Retrofit.Builder()
+        .baseUrl("https://geocode.maps.co/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
 
+    private val geocodingService = geocodingRetrofit.create(GeocodingService::class.java)
+
+    // Fetch weather and resolve location name
     fun fetchWeather(lat: Float, lon: Float) {
         val internetAvailable = isInternetAvailable(context)
         _isConnected.postValue(internetAvailable)
 
         if (internetAvailable) {
+            resolveLocationName(lat, lon) // Resolve location name in the background
             viewModelScope.launch(Dispatchers.IO) {
                 try {
                     val response = weatherService.getWeatherForecast(lat, lon).execute()
@@ -53,16 +68,16 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
                                 val snowfall = body.hourly.snowfall?.getOrNull(index) ?: 0.0
 
                                 val condition = when {
-                                    snowfall > 0 -> "Snow" // Snow if snowfall > 0
-                                    precipitation > 0 -> "Rain" // Rain if precipitation > 0
-                                    cloudCover < 30 -> "Sunny" // Low cloud cover
-                                    cloudCover in 30.0..70.0 -> "Partly Cloudy" // Moderate cloud cover
-                                    cloudCover > 70 -> "Cloudy" // High cloud cover
+                                    snowfall > 0 -> "Snow"
+                                    precipitation > 0 -> "Rain"
+                                    cloudCover < 30 -> "Sunny"
+                                    cloudCover in 30.0..70.0 -> "Partly Cloudy"
+                                    cloudCover > 70 -> "Cloudy"
                                     else -> "Unknown"
                                 }
 
                                 WeatherData(
-                                    date = timestamp, // hourly timestamp
+                                    date = timestamp,
                                     temperature = body.hourly.temperature_2m[index],
                                     cloudCoverage = condition
                                 )
@@ -85,11 +100,36 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    // Geocode to resolve location name
+    private fun resolveLocationName(lat: Float, lon: Float) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = geocodingService.getLocationName(lat, lon).execute()
+                if (response.isSuccessful && response.body() != null) {
+                    println("Geocoding API Response: ${response.body()}")
+                    val locationName = response.body()?.address?.let { address ->
+                        listOfNotNull(address.city, address.state, address.country).joinToString(", ")
+                    } ?: "Unknown Location"
+                    _locationName.postValue(locationName)
+                } else {
+                    println("Geocoding API Error: ${response.errorBody()?.string()}")
+                    _locationName.postValue("Unknown Location")
+                }
+            } catch (e: Exception) {
+                println("Error fetching location name: ${e.message}")
+                _locationName.postValue("Unknown Location")
+            }
+        }
+    }
+
+
+    // Cache weather data
     private fun cacheWeatherData(weatherData: List<WeatherData>) {
         val json = Gson().toJson(weatherData)
         sharedPreferences.edit().putString("cached_weather_data", json).apply()
     }
 
+    // Retrieve cached weather data
     private fun getCachedWeatherData(): List<WeatherData>? {
         val json = sharedPreferences.getString("cached_weather_data", null)
         return if (json != null) {
@@ -100,4 +140,3 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 }
-

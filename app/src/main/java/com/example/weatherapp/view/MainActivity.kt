@@ -9,12 +9,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.example.weatherapp.ui.theme.WeatherAppTheme
 import com.example.weatherapp.viewmodel.WeatherViewModel
-import androidx.compose.material3.TopAppBar
 
 class MainActivity : ComponentActivity() {
     private val weatherViewModel: WeatherViewModel by viewModels {
@@ -27,30 +29,50 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WeatherAppTheme {
+                // Observing LiveData from ViewModel
                 val weatherList by weatherViewModel.weatherData.observeAsState(emptyList())
                 val isConnected by weatherViewModel.isConnected.observeAsState(true)
+                val locationName by weatherViewModel.locationName.observeAsState("Unknown Location")
 
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     topBar = {
                         TopAppBar(
                             title = {
-                                Text(text = "Weather Forecast")
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text(text = "Weather Forecast", textAlign = TextAlign.Center)
+                                    Text(
+                                        text = locationName,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.Gray,
+                                        textAlign = TextAlign.Center
+                                    )
+                                }
                             }
                         )
                     }
                 ) { innerPadding ->
-                    Column(modifier = Modifier.padding(innerPadding)) {
+                    Column(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
+                    ) {
+                        // Display connection status message
                         if (!isConnected) {
                             Text(
                                 text = "No internet connection. Showing cached data.",
-                                color = androidx.compose.ui.graphics.Color.Red,
+                                color = Color.Red,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(8.dp)
                             )
                         }
 
+                        // Input fields for latitude and longitude
                         WeatherInput(
                             onFetchWeather = { latitude, longitude ->
                                 weatherViewModel.fetchWeather(latitude, longitude)
@@ -61,6 +83,7 @@ class MainActivity : ComponentActivity() {
                                 .weight(1f)
                         )
 
+                        // Weather list display
                         WeatherList(
                             weatherData = weatherList,
                             modifier = Modifier
@@ -73,5 +96,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-

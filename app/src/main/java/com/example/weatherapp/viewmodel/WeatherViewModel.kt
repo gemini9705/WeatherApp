@@ -34,8 +34,8 @@ class WeatherViewModel(application: Application) : AndroidViewModel(application)
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("WeatherAppPrefs", Context.MODE_PRIVATE)
 
-    // Retrofit setup
-    private val retrofit = Retrofit.Builder()
+
+    private val retrofit = Retrofit.Builder() //retrofit library
         .baseUrl("https://api.open-meteo.com/v1/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
